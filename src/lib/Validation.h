@@ -5,8 +5,12 @@
  * Created: Ago-15-2018 , Modified:Ago-20-2018
  */
 
+// Codigo Base
+//.b=42
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <regex>
 
 using namespace std;
 
@@ -24,18 +28,32 @@ public:
   // Validates is the file is empty or not
     void isEmpty ( fstream& );
   // Validates that the lines of code, blank lines and comments are counter correctly
-    void line ( int *, string );
+    int line ( string );//.m
   // Makes a checksum to validate sum of lines is equal to total lines
     void checksum ( int * );
 
 private:
+    // Regular Expression
+    regex token; //Matches any token for .b .m .i .d
+    regex commentSingleLine;
+    regex commentLineStart; // Matches any comment line with // or /*
+    regex commentLineEnd; // Matched any ending multicomment line
+    regex blankLine; // Matches blank lines
+    regex trashLines; //Matches trash lines like { } alone
 };
 
 /* Constructor for the validation class which handles everything related to validations
  * Parameters: none
  * Returns: none
  */
-Validation::Validation() { }
+Validation::Validation() { //.m
+    token = "//(.b=([0-9]+)|.m|.d=([0-9]+)|.i)"; //Matches any token for .b=00 .m .i .d=00
+    commentSingleLine = "//|/\\*(.*)\\*/";
+    commentLineStart = "/\\*"; // Matches any comment line with // or /*
+    commentLineEnd = "\\*/"; // Matched any ending multicomment line
+    blankLine = "^[ \t\n]*$"; // Matches blank lines
+    trashLines = "(^[ \t\n]*)(\\{|\\})([ \t\n]*$)"; //Matches trash lines like { } alone
+}
 
 /* Validates that the file opened correctly
  * Parameters: int fileStatus is the return value of the fstream function to open a file
@@ -69,13 +87,25 @@ void Validation::isEmpty( fstream& currentFile )
  * string line is the return value of the getline() function in which will perform the validation and decide what to count
  * Returns: none
  */
-void Validation::line( int counters[4], string line )
+int Validation::line( string line )//.m
 {
-  bool blankLineFlag = true;
-  bool codeFlag = false;
+  //bool blankLineFlag = true;
+  //bool codeFlag = false;
 
-  counters[3]++;
+  // counters[3]++;
+  if( regex_search( line, token ) ) { return 0; }
 
+  if( regex_search( line, commentSingleLine ) ) { return 1; }
+
+  if( regex_search( line, commentLineStart ) ) { return 2; }
+
+  if( regex_search( line, commentLineEnd ) ) { return 3; }
+
+  if( regex_search( line, blankLine ) ) { return 4; }
+
+  if( regex_match( line, trashLines ) ) { return 5; }
+
+  /*
   for( int i = 0; i < line.length(); i++ )
   {
     if( line[i] == '/' || line[i] == '*' )
@@ -103,6 +133,8 @@ void Validation::line( int counters[4], string line )
   } else if( codeFlag ) {
     counters[2]++;
   }
+  */
+  return 6;
 }
 
 /* Validates that the sum of all the counters is equal to the amount of lines in the file

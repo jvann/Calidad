@@ -5,6 +5,8 @@
  * Created: Ago-15-2018 , Modified:Ago-20-2018
  */
 
+// Codigo Base
+//.b=38
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -77,16 +79,52 @@ void FileManager::close()
 void FileManager::read( int counters[4] )
 {
   string line;
+  bool flagMultiCommentLine = false;
 
   try
   {
     while ( !currentFile.eof() )
     {
+      counters[3]++;
+
       getline( currentFile, line );
-      validate.line( counters, line );
+      //validate.line( line );
+      switch( validate.line( line ) )
+      {
+        case 0:
+          // Token add logic here
+          break;
+        case 1:
+          //cout << "COUNTER: " << counters[3]<< "SINGLE COMMENT => " << line << endl;
+          counters[1]++;
+          break;
+        case 2:
+          //cout << "COUNTER: " << counters[3]<< "START COMMENT => " << line << endl;
+          counters[1]++;
+          flagMultiCommentLine = true;
+          break;
+        case 3:
+          //cout << "COUNTER: " << counters[3]<< "ENd COMMENT => " << line << endl;
+          counters[1]++;
+          flagMultiCommentLine = false;
+          break;
+        case 4:
+          //cout << "COUNTER: " << counters[3]<< "BLANK => " << line << endl;
+          counters[0]++;
+          break;
+        case 5:
+          //cout << "COUNTER: " << counters[3]<< "TRASH => " << line << endl;
+          counters[2]++;
+          break;
+        case 6:
+          if( flagMultiCommentLine ) { counters[1]++; }
+          break;
+        default:
+          break;
+      }
     }
 
-    validate.checksum( counters );
+    //validate.checksum( counters );
   }
   catch ( const invalid_argument& e )
   {

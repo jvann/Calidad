@@ -5,6 +5,8 @@
  * Created: Ago-15-2018 , Modified:Ago-20-2018
  */
 
+// Codigo Base
+//.b=27
 #include <iostream>
 #include <string>
 #include "FileManager.h"
@@ -18,6 +20,7 @@ using namespace::std;
 
 int main() {
 
+  //blanks, comments, code, total
   int counters[4] = { 0, 0, 0, 0 };
   string fileName;
   FileManager file;
@@ -34,9 +37,9 @@ int main() {
     cout << "--------------------------------------------" << endl;
     cout << "Cantidad de líneas en blanco: " << counters[0] << endl;
     cout << "Cantidad de líneas con comentarios: " << counters[1] << endl;
-    cout << "Cantidad de líneas con código " << counters[2] << endl;
+    cout << "Cantidad de líneas con código " << counters[3] - (counters[0] + counters[1]) << endl;//.m
     cout << "--------------------------------------------" << endl;
-    cout << "Numero total de lineas: " << (counters[3]) << endl;
+    cout << "Numero total de lineas: " << counters[3] << endl;
 
   }
   catch ( const invalid_argument& e )
