@@ -9,6 +9,7 @@
 //.b=27
 #include <iostream>
 #include <string>
+#include <vector>
 #include "FileManager.h"
 
 using namespace::std;
@@ -22,25 +23,35 @@ int main() {
 
   //blanks, comments, code, total
   int counters[4] = { 0, 0, 0, 0 };
-  string fileName;
-  FileManager file;
+  string fileNames;//.m
+  FileManager fileManager;
 
-  cout << "Insert file name with extension: ";
-  cin >> fileName;;
+  cout << "Insert file names with extension: ";//.m
+
+  getline( cin, fileNames);//.m
 
   try
   {
-    file.open( fileName );
-    file.read( counters );
-
-    cout << "Nombre del archivo: " << file.getName() << endl;
+    fileManager.fileStorageVector(fileNames);
+    //file.open( fileName );
+    //file.read( counters );
+    cout << "PARTES BASE:" << endl;
+    cout << "Lista: T=" << "Counter here" << ", I=" << "Counter here" << ", B=" << "Counter here" << ", D=" << "Counter here" << ", M=" << "Counter here" << ", A=" << "Counter here" << endl;
     cout << "--------------------------------------------" << endl;
-    cout << "Cantidad de líneas en blanco: " << counters[0] << endl;
+    cout << "PARTES NUEVAS:" << endl;
+    cout << "--------------------------------------------" << endl;
+    cout << "PARTES REUSADAS:" << endl;
+    cout << "Nodo: T=27, I=1, B=27" << endl;
+    cout << "--------------------------------------------" << endl;
+    cout << "Total de LDC=69" << endl;
+    /* cout << "Nombre del archivo: " << file.getName() << endl;
+    cout << "--------------------------------------------" << endl;//.m
+    cout << "Cantidad de líneas en blanco: " << counters[0] << endl;//.
     cout << "Cantidad de líneas con comentarios: " << counters[1] << endl;
     cout << "Cantidad de líneas con código " << counters[3] - (counters[0] + counters[1]) << endl;//.m
     cout << "--------------------------------------------" << endl;
     cout << "Numero total de lineas: " << counters[3] << endl;
-
+*/
   }
   catch ( const invalid_argument& e )
   {
@@ -49,7 +60,7 @@ int main() {
 
   try
   {
-    file.close();
+    //fileManager.close();
   }
   catch ( const invalid_argument& e )
   {

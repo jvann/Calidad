@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <vector>
 
 using namespace std;
 
@@ -31,7 +32,8 @@ public:
     int line ( string );//.m
   // Makes a checksum to validate sum of lines is equal to total lines
     void checksum ( int * );
-
+  // Separates file names from whole string
+    vector<string> separateFileNames( string );
 private:
     // Regular Expression
     regex token; //Matches any token for .b .m .i .d
@@ -53,6 +55,30 @@ Validation::Validation() { //.m
     commentLineEnd = "\\*/"; // Matched any ending multicomment line
     blankLine = "^[ \t\n]*$"; // Matches blank lines
     trashLines = "(^[ \t\n]*)(\\{|\\})([ \t\n]*$)"; //Matches trash lines like { } alone
+}
+
+/* Separates the string in sepearate file names so they can be accessed independently and opened
+ * by the FileManager
+ * Parameters: String that contains all file names
+ * Returns a vector<string> with the separated filenames
+ */
+vector<string> Validation::separateFileNames( string fileNames)
+{
+  string fileName = "";
+  vector<string> vFileNames;
+
+  for(int i = 0; i <= fileNames.length(); i++)
+  {
+    // cout << "ASCI=> " << fileNames[i] << " ~ "<< to_string(fileNames[i]).compare("\r") << endl;
+    if( to_string(fileNames[i]).compare("\r") == 35 || isspace( fileNames[i] ) || to_string(fileNames[i]) == "38" || to_string(fileNames[i]) == "44" )
+    {
+      vFileNames.push_back( fileName );
+      fileName = "";
+    } else {
+      fileName += fileNames[i];
+    }
+  }
+  return vFileNames;
 }
 
 /* Validates that the file opened correctly
@@ -89,10 +115,8 @@ void Validation::isEmpty( fstream& currentFile )
  */
 int Validation::line( string line )//.m
 {
-  //bool blankLineFlag = true;
-  //bool codeFlag = false;
+  //.d=3
 
-  // counters[3]++;
   if( regex_search( line, token ) ) { return 0; }
 
   if( regex_search( line, commentSingleLine ) ) { return 1; }
@@ -105,35 +129,8 @@ int Validation::line( string line )//.m
 
   if( regex_match( line, trashLines ) ) { return 5; }
 
-  /*
-  for( int i = 0; i < line.length(); i++ )
-  {
-    if( line[i] == '/' || line[i] == '*' )
-    {
-      if( ( i+1 ) <= line.length() )
-      {
-        if( ( line[i+1] == '/' || line[i+1] == '*' ) || ( line[i] == '*' && isspace(line[i+1] ) ) )
-        {
-          counters[1]++;
-          codeFlag = false;
-          blankLineFlag = false;
-          break;
-        }
-      }
-    }
-    else if( !isspace( line[i] ) && line[i] != '\t' && line[i] != '\n' ) {
-      blankLineFlag = false;
-      codeFlag = true;
-    }
-  }
+  //.d=15
 
-  if( blankLineFlag )
-  {
-    counters[0]++;
-  } else if( codeFlag ) {
-    counters[2]++;
-  }
-  */
   return 6;
 }
 

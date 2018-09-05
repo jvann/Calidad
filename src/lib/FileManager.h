@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include "Validation.h"
 
 using namespace std;
@@ -22,16 +23,19 @@ class FileManager
 public:
   // Constructor
     FileManager();
+  // Creates an array of file names
+    void fileStorageVector(string);
   // Opens files using fstream from c++
     void open( string );
   // Closees files using fstream from c++
     void close();
   // Reads files using fstream from c++
     void read( int * );
+  // Gets the name of the file
     string getName();
 
 private:
-  string fileName;
+  vector<string> vFiles;//.m
   fstream  currentFile;
   Validation validate;
 };
@@ -41,6 +45,13 @@ private:
  * Returns: nothing
  */
 FileManager::FileManager() { }
+
+/* Assigns to vector of file name list using validator returns a void */
+void FileManager::fileStorageVector( string fileNames )
+{
+  vFiles = validate.separateFileNames( fileNames );
+  cout << vFiles.size() << endl;
+}
 
 /* Handles the file opneing and keeping it alive as well as calling corresponding
  * validations to provide checks and error handling
@@ -54,7 +65,7 @@ void FileManager::open( string fileName )
     currentFile.open( "./" + fileName );
     validate.isOpen( currentFile.is_open() );
     validate.isEmpty( currentFile );
-    this -> fileName = fileName;
+//    this -> fileName = fileName;
   }
   catch ( const invalid_argument& e )
   {
@@ -88,32 +99,29 @@ void FileManager::read( int counters[4] )
       counters[3]++;
 
       getline( currentFile, line );
-      //validate.line( line );
+
+      //.d=1
+
       switch( validate.line( line ) )
       {
         case 0:
           // Token add logic here
           break;
         case 1:
-          //cout << "COUNTER: " << counters[3]<< "SINGLE COMMENT => " << line << endl;
           counters[1]++;
           break;
         case 2:
-          //cout << "COUNTER: " << counters[3]<< "START COMMENT => " << line << endl;
           counters[1]++;
           flagMultiCommentLine = true;
           break;
         case 3:
-          //cout << "COUNTER: " << counters[3]<< "ENd COMMENT => " << line << endl;
           counters[1]++;
           flagMultiCommentLine = false;
           break;
         case 4:
-          //cout << "COUNTER: " << counters[3]<< "BLANK => " << line << endl;
           counters[0]++;
           break;
         case 5:
-          //cout << "COUNTER: " << counters[3]<< "TRASH => " << line << endl;
           counters[2]++;
           break;
         case 6:
@@ -124,7 +132,8 @@ void FileManager::read( int counters[4] )
       }
     }
 
-    //validate.checksum( counters );
+    //.d=1
+
   }
   catch ( const invalid_argument& e )
   {
@@ -136,7 +145,7 @@ void FileManager::read( int counters[4] )
  * Parameters: none
  * Returns: string which is the name of the current opened file
  */
-string FileManager::getName()
-{
-  return this -> fileName;
-}
+//string FileManager::getName()
+//{
+//  return this -> fileName;
+//}
