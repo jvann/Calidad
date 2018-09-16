@@ -2,13 +2,14 @@
  * that the FileManager needs to have. It validates ll types of things like names, files status,
  * isEmpty, line by line etc.
  * Author: Jorge Ivan Diaz Sanchez A01191342
- * Created: Ago-15-2018 , Modified:Ago-20-2018
+ * Created: Ago-15-2018 , Modified:Sep-15-2018
  */
 
 // Codigo Base
 //.b=42
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <regex>
 #include <vector>
@@ -22,21 +23,27 @@ using namespace std;
 class Validation
 {
 public:
-  // Constructor
+    // Constructor
     Validation();
-  // Validates that the file was opened correctly and exists
+    // Validates that the file was opened correctly and exists
     void isOpen ( int );
-  // Validates is the file is empty or not
+    // Validates is the file is empty or not
     void isEmpty ( fstream& );
-  // Validates that the lines of code, blank lines and comments are counter correctly
-    int line ( string );//.m
-  // Makes a checksum to validate sum of lines is equal to total lines
+    // Validates that the lines of code, blank lines and comments are counter correctly
+    int *line ( string );//.m
+    // Makes a checksum to validate sum of lines is equal to total lines
     void checksum ( int * );
-  // Separates file names from whole string
+    // Separates file names from whole string
     vector<string> separateFileNames( string );
+    // Returns name with no extension
+    string nameWithNoExt( string );
+
 private:
     // Regular Expression
-    regex token; //Matches any token for .b .m .i .d
+    regex tokenB; //Matches any token for .b
+    regex tokenD; //Matches any token for .d
+    regex tokenM; //Matches any token for .m
+    regex tokenI; //Matches any token for .i
     regex commentSingleLine;
     regex commentLineStart; // Matches any comment line with // or /*
     regex commentLineEnd; // Matched any ending multicomment line
@@ -49,12 +56,19 @@ private:
  * Returns: none
  */
 Validation::Validation() { //.m
-    token = "//(.b=([0-9]+)|.m|.d=([0-9]+)|.i)"; //Matches any token for .b=00 .m .i .d=00
-    commentSingleLine = "//|/\\*(.*)\\*/";
-    commentLineStart = "/\\*"; // Matches any comment line with // or /*
+
+    //Tokens
+    tokenB = "\\/\\/\\.b=([0-9]+)"; //Matches any token for //.d=00
+    tokenD = "\\/\\/\\.d=([0-9]+)"; //Matches any token for //.b=00
+    tokenM = "(.)*(\\/\\/\\.m)(\t|\n|\r|\v| )*"; //Matches any token for //.m
+    tokenI = "(\\/\\/\\.i)"; //Matches any token for //.i
+
+    //Lines
+    commentSingleLine = "^((\t|\n|\r|\v| )*)((\\/\\/[^.](.*))|(\\/\\*(.*?)\\*\\/))";
+    commentLineStart = "(\\/\\*)"; // Matches any comment line with // or /*C
     commentLineEnd = "\\*/"; // Matched any ending multicomment line
-    blankLine = "^[ \t\n]*$"; // Matches blank lines
-    trashLines = "(^[ \t\n]*)(\\{|\\})([ \t\n]*$)"; //Matches trash lines like { } alone
+    blankLine = "(\t|\n|\r|\v| )*"; // Matches blank lines
+    trashLines = "(\t|\n|\r|\v| )*(\\{|\\}|\\}\\;)(\t|\n|\r|\v| )*"; //Matches trash lines like { } alone
 }
 
 /* Separates the string in sepearate file names so they can be accessed independently and opened
@@ -64,21 +78,20 @@ Validation::Validation() { //.m
  */
 vector<string> Validation::separateFileNames( string fileNames)
 {
-  string fileName = "";
-  vector<string> vFileNames;
+    string fileName = "";
+    vector<string> vFileNames;
 
-  for(int i = 0; i <= fileNames.length(); i++)
-  {
-    // cout << "ASCI=> " << fileNames[i] << " ~ "<< to_string(fileNames[i]).compare("\r") << endl;
-    if( to_string(fileNames[i]).compare("\r") == 35 || isspace( fileNames[i] ) || to_string(fileNames[i]) == "38" || to_string(fileNames[i]) == "44" )
+    for(int i = 0; i <= fileNames.length(); i++)
     {
-      vFileNames.push_back( fileName );
-      fileName = "";
-    } else {
-      fileName += fileNames[i];
+        if( to_string(fileNames[i]).compare("\r") == 35 || isspace( fileNames[i] ) || to_string(fileNames[i]) == "38" || to_string(fileNames[i]) == "44" )
+        {
+            vFileNames.push_back( fileName );
+            fileName = "";
+        } else {
+            fileName += fileNames[i];
+        }
     }
-  }
-  return vFileNames;
+    return vFileNames;
 }
 
 /* Validates that the file opened correctly
@@ -88,10 +101,10 @@ vector<string> Validation::separateFileNames( string fileNames)
  */
 void Validation::isOpen( int fileStatus )
 {
-  if ( !fileStatus )
-  {
-    throw invalid_argument( "Lo sentimos, ese archivo no existe, intente de nuevo." );
-  }
+    if ( !fileStatus )
+    {
+        throw invalid_argument( "Lo sentimos, un archivo no existe, intente de nuevo." );//.m
+    }
 }
 
 /* Validates that the file is NOT empty
@@ -100,11 +113,11 @@ void Validation::isOpen( int fileStatus )
  */
 void Validation::isEmpty( fstream& currentFile )
 {
-  if( currentFile.peek() < 0 || currentFile.eof() )
-  {
-    throw invalid_argument( "Lo sentimos, este archivo se encuentra vacio. ("
-        + to_string( currentFile.peek() ) + ")" );
-  }
+    if( currentFile.peek() < 0 || currentFile.eof() )
+    {
+        throw invalid_argument( "Lo sentimos, este archivo se encuentra vacio. ("
+                               + to_string( currentFile.peek() ) + ")" );
+    }
 }
 
 /* Validates if it is a comment, blank line or code line with the correspongin validations
@@ -113,25 +126,72 @@ void Validation::isEmpty( fstream& currentFile )
  * string line is the return value of the getline() function in which will perform the validation and decide what to count
  * Returns: none
  */
-int Validation::line( string line )//.m
+int *Validation::line( string line )//.m
 {
-  //.d=3
+    //.d=3
+    static int auxArray[2];// 9 is the default value for multilecomments in between.
 
-  if( regex_search( line, token ) ) { return 0; }
+    //Variable cleaning
+    auxArray[0] = 9;
+    auxArray[1] = 0;
 
-  if( regex_search( line, commentSingleLine ) ) { return 1; }
+    if( regex_search( line, tokenB ) ) {
 
-  if( regex_search( line, commentLineStart ) ) { return 2; }
+        string auxStoI = "";
+        auxArray[0] = 0;
 
-  if( regex_search( line, commentLineEnd ) ) { return 3; }
+        int pos = 5 + static_cast<int>(line.find("//.b="));
 
-  if( regex_search( line, blankLine ) ) { return 4; }
+        for (int i = pos; i < line.length(); i++) {
+            if(!isspace(line[i]) && line[i] != '\t' && line[i] != '\n') {
+                auxStoI += line[i];
+            }
+        }
+        auxArray[1] = stoi(auxStoI);
+        return auxArray;
+    }
 
-  if( regex_match( line, trashLines ) ) { return 5; }
+    else if( regex_search( line, tokenD ) ) {
+        string auxStoI = "";
+        auxArray[0] = 1;
 
-  //.d=15
+        int pos = 5 + static_cast<int>(line.find("//.d="));
 
-  return 6;
+        for (int i = pos; i < line.length(); i++) {
+            if(!isspace(line[i]) && line[i] != '\t' && line[i] != '\n') {
+                auxStoI += line[i];
+            }
+        }
+        auxArray[1] = stoi(auxStoI);
+        return auxArray;
+    }
+
+    else if( regex_match( line, tokenM ) ) {
+        auxArray[0] = 2;
+        for (int i = 0; i < line.length(); i++) {
+            if(isspace(line[i]) && line[i] == '\t' && line[i] == '\n' && line[i] == '/') {
+                auxArray[1] = 1;
+                i += line.length();
+            }
+        }
+        return auxArray;
+    }
+
+    else if( regex_search( line, tokenI ) ) { auxArray[0] = 3; return auxArray; }
+
+    else if( regex_search( line, commentSingleLine ) ) { auxArray[0] = 4; return auxArray; }
+
+    else if( regex_search( line, commentLineStart ) ) { auxArray[0] = 5; return auxArray; }
+
+    else if( regex_search( line, commentLineEnd ) ) { auxArray[0] = 6; return auxArray; }
+
+    else if( regex_match( line, blankLine ) ) { auxArray[0] = 7; return auxArray; }
+
+    else if( regex_match( line, trashLines ) ) { auxArray[0] = 8; return auxArray; }
+
+    //.d=15
+
+    return auxArray;//.m
 }
 
 /* Validates that the sum of all the counters is equal to the amount of lines in the file
@@ -140,9 +200,30 @@ int Validation::line( string line )//.m
  */
 void Validation::checksum( int counters[4] )
 {
-  int sum = counters[0] + counters[1] + counters[2];
-  if( sum != counters[3] )
-  {
-    throw invalid_argument( "Checksum does not add" );
-  }
+    int sum = counters[0] + counters[1] + counters[2];
+    if( sum != counters[3] )
+    {
+        throw invalid_argument( "Checksum does not add" );
+    }
+}
+
+/* Returns the name of the string without its extension.
+ * Parameters, accepts strign as a parameter
+ Returns string
+ */
+string Validation::nameWithNoExt( string nameExt)
+{
+    string fileNameNoExt = "";
+
+    for(int i = 0; i <= nameExt.length(); i++)
+    {
+        if( to_string(nameExt[i]) == "46")
+        {
+            return fileNameNoExt;
+        } else {
+            fileNameNoExt += nameExt[i];
+        }
+    }
+
+    return fileNameNoExt;
 }
