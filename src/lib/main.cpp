@@ -18,7 +18,7 @@ using namespace::std;
  * Parameters: none
  * Returns 0
  */
-
+//.i
 int main() {
 
     //blanks, comments, code, total

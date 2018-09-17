@@ -1,8 +1,10 @@
 PARTES BASE:
-FileManager: T=196, I=0, B=38, D=4, M=4, A=162
+main: T=18, I=1, B=27, D=13, M=3, A=4
+FileManager: T=196, I=12, B=38, D=4, M=4, A=162
+Validation: T=92, I=7, B=42, D=18, M=6, A=68
 --------------------------------------------
 PARTES NUEVAS:
 --------------------------------------------
 PARTES REUSADAS:
 --------------------------------------------
-Total de LDC=196
+Total de LDC=306

@@ -20,6 +20,7 @@ using namespace std;
  * Parameters: none
  * Returns: none
  */
+//.i
 class Validation
 {
 public:
@@ -55,6 +56,7 @@ private:
  * Parameters: none
  * Returns: none
  */
+//.i
 Validation::Validation() { //.m
 
     //Tokens
@@ -99,6 +101,7 @@ vector<string> Validation::separateFileNames( string fileNames)
  * so it checks that 0 is not opened and 1 is opened.
  * Returns: none
  */
+//.i
 void Validation::isOpen( int fileStatus )
 {
     if ( !fileStatus )
@@ -111,6 +114,7 @@ void Validation::isOpen( int fileStatus )
  * Parameters: fstream currentFile by reference to read the file and check if empty
  * Returns: none
  */
+//.i
 void Validation::isEmpty( fstream& currentFile )
 {
     if( currentFile.peek() < 0 || currentFile.eof() )
@@ -126,6 +130,7 @@ void Validation::isEmpty( fstream& currentFile )
  * string line is the return value of the getline() function in which will perform the validation and decide what to count
  * Returns: none
  */
+//,i
 int *Validation::line( string line )//.m
 {
     //.d=3
@@ -198,6 +203,7 @@ int *Validation::line( string line )//.m
  * Parameters: int counter[4] which is the array that stores all the counters for each type of line
  * Returns: none
  */
+//.i
 void Validation::checksum( int counters[4] )
 {
     int sum = counters[0] + counters[1] + counters[2];
@@ -211,6 +217,7 @@ void Validation::checksum( int counters[4] )
  * Parameters, accepts strign as a parameter
  Returns string
  */
+//.i
 string Validation::nameWithNoExt( string nameExt)
 {
     string fileNameNoExt = "";

@@ -15,6 +15,7 @@
 
     using namespace std;
 
+    //.i
     struct StructFile
     {
         // < name, B, D, M, A, T, I >
@@ -30,6 +31,7 @@
     /* FileManager class handles all files like opening a file, keeping the file open
      * close the file, call validations and rhandle file errors
      */
+    //.i
     class FileManager
     {
     public:
@@ -69,6 +71,7 @@
      * Parameters: none
      * Returns: nothing
      */
+    //.i
     FileManager::FileManager() { }
 
     /* Assigns to vector of file name list using validator returns a void
@@ -76,6 +79,7 @@
      * Parameters: accepts a string which contaisn all file names in a single string
      * Returns: void
      */
+    //.i
     void FileManager::fileStorageVector( string fileNames )
     {
         vFilesWithExt = validate.separateFileNames( fileNames );
@@ -93,6 +97,7 @@
      * Parameters: None
      * Returns: void
      */
+    //.i
     void FileManager::readFiles()
     {
         for (int i = 0; i < vFilesWithExt.size(); i++) {
@@ -111,6 +116,7 @@
      * Paramteres: fileName will be the string used as a parameter to open a file
      * Returns: void
      */
+    //.i
     void FileManager::open( string fileName )
     {
         try
@@ -130,6 +136,7 @@
      * Parameters: none
      * Returns: void
      */
+    //.i
     void FileManager::close()
     {
         this -> currentFile.close();
@@ -139,6 +146,7 @@
      * Parameters: accepts a string to compare with the vFiles vector
      * Returns int which is the index
      */
+    //.i
     int FileManager::fileIndex( string fileName)
     {
         for (int i = 0; i < vFiles.size(); i++) {
@@ -155,6 +163,7 @@
      * Parameters: String of name of file
      * Returns boolean true if exists fale if not
      */
+    //.i
     bool FileManager::exist( string fileName )
     {
         for (int i = 0; i < vFiles.size(); i++) {
@@ -172,6 +181,7 @@
      * Parameters: none
      * Returns: void
      */
+    //.i
     void FileManager::printStats()
     {
         int auxCounter = 0;// Array to add all necessary counters: / [ B, D, M, A, T, I ]
@@ -235,6 +245,7 @@
      * Parameters: none
      * Returns: void
      */
+    //.i
     void FileManager::writeStatsToFile()
     {
         ofstream conteoLDC;
@@ -303,6 +314,7 @@
      * blank, comment and code lines
      * Returns: void
      */
+    //.i
     void FileManager::read( int index )//.m
     {
         string line;
